@@ -1,13 +1,16 @@
-FROM registry-1.docker.io/library/rust:1.93.0-bookworm
+FROM registry-1.docker.io/library/rust:1.93.0-trixie
 
 ARG VARIANT=1.93.0-bookworm
 ARG USERNAME=vscode
 ARG USER_UID=1000
 ARG USER_GID=$USER_UID
 
+RUN apt update -y && apt -y install nodejs npm
+
 RUN groupadd --gid $USER_GID $USERNAME \
     && useradd --uid $USER_UID --gid $USER_GID -m $USERNAME
 
 RUN chown -R $USERNAME:$USERNAME /usr/local/cargo
+
 USER $USERNAME
 RUN rustup component add clippy rustfmt

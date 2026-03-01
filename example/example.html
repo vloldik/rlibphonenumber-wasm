@@ -1,0 +1,381 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>rlibphonenumber</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-color: #fafafa;
+            --surface-color: #ffffff;
+            --text-main: #171717;
+            --text-muted: #737373;
+            --border-color: #e5e5e5;
+            --border-focus: #a3a3a3;
+            --valid-color: #16a34a;
+            --invalid-color: #dc2626;
+            --radius-md: 8px;
+            --radius-lg: 12px;
+            --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+            --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
+            --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            line-height: 1.5;
+            display: flex;
+            justify-content: center;
+            padding: 4rem 1rem;
+            min-height: 100vh;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 640px;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 3rem;
+        }
+
+        h1 {
+            font-size: 1.875rem;
+            font-weight: 600;
+            letter-spacing: -0.025em;
+            color: var(--text-main);
+        }
+
+        p.subtitle {
+            color: var(--text-muted);
+            font-size: 0.875rem;
+            margin-top: 0.5rem;
+        }
+
+        .input-group {
+            display: flex;
+            gap: 0.75rem;
+            margin-bottom: 2rem;
+            position: relative;
+        }
+
+        .input-group select,
+        .input-group input {
+            padding: 1rem 1.25rem;
+            font-size: 1rem;
+            font-family: inherit;
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-md);
+            background-color: var(--surface-color);
+            color: var(--text-main);
+            outline: none;
+            transition: var(--transition);
+            box-shadow: var(--shadow-sm);
+        }
+
+        .input-group>#regionInput {
+            max-width: 100px;
+            background-repeat: no-repeat;
+            background-position: right 1rem center;
+            background-size: 1rem;
+            padding-right: 2.5rem;
+        }
+
+        .input-group input {
+            flex: 1;
+        }
+
+        .input-group select:focus,
+        .input-group input:focus {
+            border-color: var(--border-focus);
+            box-shadow: 0 0 0 4px rgba(0, 0, 0, 0.05);
+        }
+
+        /* Results Area */
+        .results-wrapper {
+            opacity: 0;
+            transform: translateY(10px);
+            transition: var(--transition);
+            pointer-events: none;
+        }
+
+        .results-wrapper.active {
+            opacity: 1;
+            transform: translateY(0);
+            pointer-events: auto;
+        }
+
+        .section-title {
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: var(--text-muted);
+            margin-bottom: 0.75rem;
+            margin-top: 1.5rem;
+        }
+
+        .card {
+            background-color: var(--surface-color);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-md);
+            overflow: hidden;
+        }
+
+        .data-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 1rem 1.25rem;
+            border-bottom: 1px solid var(--border-color);
+            transition: background-color 0.2s;
+        }
+
+        .data-row:last-child {
+            border-bottom: none;
+        }
+
+        .data-row:hover {
+            background-color: var(--bg-color);
+        }
+
+        .data-label {
+            color: var(--text-muted);
+            font-size: 0.875rem;
+            font-weight: 500;
+        }
+
+        .data-value {
+            font-size: 0.875rem;
+            font-weight: 500;
+            text-align: right;
+            color: var(--text-main);
+            word-break: break-all;
+            max-width: 60%;
+        }
+
+        .status-badge {
+            display: inline-block;
+            padding: 0.125rem 0.5rem;
+            border-radius: 999px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.025em;
+        }
+
+        .status-valid {
+            background-color: rgba(22, 163, 74, 0.1);
+            color: var(--valid-color);
+        }
+
+        .status-invalid {
+            background-color: rgba(220, 38, 38, 0.1);
+            color: var(--invalid-color);
+        }
+
+        .error-message {
+            text-align: center;
+            color: var(--invalid-color);
+            font-size: 0.875rem;
+            margin-top: 1rem;
+            opacity: 0;
+            transition: var(--transition);
+        }
+
+        .error-message.visible {
+            opacity: 1;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="container">
+        <header>
+            <h1>rlibphonenumber v1.1.0</h1>
+            <p class="subtitle">Rust implementation of Google's libphonenumber</p>
+        </header>
+
+        <div class="input-group">
+            <!-- Default region to help with parsing local numbers -->
+            <input id="regionInput" type="text" placeholder="US" autocomplete="country">
+            <input type="text" id="phoneInput" placeholder="+1 (555) 000-0000" autocomplete="off" disabled>
+        </div>
+
+        <div id="errorMsg" class="error-message"></div>
+
+        <div id="resultsWrapper" class="results-wrapper">
+            <div class="section-title">Validation</div>
+            <div class="card">
+                <div class="data-row">
+                    <span class="data-label">Status</span>
+                    <span id="valStatus" class="data-value"></span>
+                </div>
+                <div class="data-row">
+                    <span class="data-label">Type</span>
+                    <span id="valType" class="data-value">-</span>
+                </div>
+                <div class="data-row">
+                    <span class="data-label">Region Code</span>
+                    <span id="valRegion" class="data-value">-</span>
+                </div>
+                <div class="data-row">
+                    <span class="data-label">Possible</span>
+                    <span id="valPossible" class="data-value">-</span>
+                </div>
+            </div>
+
+            <div class="section-title">Formatting</div>
+            <div class="card">
+                <div class="data-row">
+                    <span class="data-label">E.164</span>
+                    <span id="fmtE164" class="data-value">-</span>
+                </div>
+                <div class="data-row">
+                    <span class="data-label">International</span>
+                    <span id="fmtInt" class="data-value">-</span>
+                </div>
+                <div class="data-row">
+                    <span class="data-label">National</span>
+                    <span id="fmtNat" class="data-value">-</span>
+                </div>
+                <div class="data-row">
+                    <span class="data-label">RFC3966</span>
+                    <span id="fmtRfc" class="data-value">-</span>
+                </div>
+            </div>
+
+            <div class="section-title">Technical Details</div>
+            <div class="card">
+                <div class="data-row">
+                    <span class="data-label">Significant Number</span>
+                    <span id="techSigNum" class="data-value">-</span>
+                </div>
+                <div class="data-row">
+                    <span class="data-label">Area Code Length</span>
+                    <span id="techAreaLen" class="data-value">-</span>
+                </div>
+                <div class="data-row">
+                    <span class="data-label">Dest. Code Length</span>
+                    <span id="techDestLen" class="data-value">-</span>
+                </div>
+                <div class="data-row">
+                    <span class="data-label">Geographical</span>
+                    <span id="techGeo" class="data-value">-</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script type="module">
+        import init, {
+            parseAndKeepRawInputWithDefaultRegion,
+            JsPhoneNumberFormat,
+        } from './pkg/rlibphonenumber_wasm.js';
+
+        const TYPE_MAP = {
+            0: 'Fixed Line', 1: 'Mobile', 2: 'Fixed Line or Mobile', 3: 'Toll Free',
+            4: 'Premium Rate', 5: 'Shared Cost', 6: 'VoIP', 7: 'Personal Number',
+            8: 'Pager', 9: 'UAN', 10: 'Voicemail', 99: 'Unknown'
+        };
+        const phoneInput = document.getElementById('phoneInput');
+        const regionInput = document.getElementById('regionInput');
+        const resultsWrapper = document.getElementById('resultsWrapper');
+        const errorMsg = document.getElementById('errorMsg');
+        const dom = {
+            status: document.getElementById('valStatus'),
+            type: document.getElementById('valType'),
+            region: document.getElementById('valRegion'),
+            possible: document.getElementById('valPossible'),
+            e164: document.getElementById('fmtE164'),
+            int: document.getElementById('fmtInt'),
+            nat: document.getElementById('fmtNat'),
+            rfc: document.getElementById('fmtRfc'),
+            sigNum: document.getElementById('techSigNum'),
+            areaLen: document.getElementById('techAreaLen'),
+            destLen: document.getElementById('techDestLen'),
+            geo: document.getElementById('techGeo'),
+        };
+
+        function clearUI() {
+            resultsWrapper.classList.remove('active');
+            errorMsg.classList.remove('visible');
+        }
+
+        function processInput() {
+            const val = phoneInput.value.trim();
+            const defaultRegion = regionInput.value;
+
+            if (!val) {
+                clearUI();
+                return;
+            }
+
+            try {
+                const number = parseAndKeepRawInputWithDefaultRegion(val, defaultRegion);
+
+                errorMsg.classList.remove('visible');
+                resultsWrapper.classList.add('active');
+
+                const isValid = number.isValid();
+                dom.status.className = isValid ? 'status-badge status-valid' : 'status-badge status-invalid';
+                dom.status.textContent = isValid ? 'Valid' : 'Invalid';
+
+                dom.type.textContent = TYPE_MAP[number.getType()] || 'Unknown';
+                dom.region.textContent = number.getRegionCode() || 'Unknown';
+
+                dom.possible.textContent = (number.isPossibleWithReason() === 0) ? 'Yes' : 'No';
+
+                dom.e164.textContent = number.formatAs(JsPhoneNumberFormat.E164);
+                dom.int.textContent = number.formatAs(JsPhoneNumberFormat.International);
+                dom.nat.textContent = number.formatAs(JsPhoneNumberFormat.National);
+                dom.rfc.textContent = number.formatAs(JsPhoneNumberFormat.RFC3966);
+
+                dom.sigNum.textContent = number.getNationalSignificantNumber();
+                dom.areaLen.textContent = number.getLengthOfGeographicalAreaCode();
+                dom.destLen.textContent = number.getLengthOfNationalDestinationCode();
+                dom.geo.textContent = number.isGeographical() ? 'Yes' : 'No';
+
+            } catch (err) {
+                resultsWrapper.classList.remove('active');
+                errorMsg.textContent = "String does not contain a valid phone number.";
+                errorMsg.classList.add('visible');
+            }
+        }
+
+        // Инициализация WASM
+        async function run() {
+            try {
+                await init();
+                phoneInput.disabled = false;
+                phoneInput.placeholder = "Enter phone number...";
+                phoneInput.focus();
+
+                phoneInput.addEventListener('input', processInput);
+                regionInput.addEventListener('change', processInput);
+            } catch (e) {
+                errorMsg.textContent = "Failed to load WASM module.";
+                errorMsg.classList.add('visible');
+                console.error(e);
+            }
+        }
+
+        run();
+    </script>
+</body>
+
+</html>
