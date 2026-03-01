@@ -4,9 +4,19 @@ version = "0.1.0"
 edition = "2024"
 
 [dependencies]
+rlibphonenumber = { version = "1.1", features = [
+    "lite",
+    "global_static",
+], default-features = false }
 
-
-[target.'cfg(all(target_arch = "wasm32", target_os = "unknown"))'.dependencies]
 getrandom = { version = "0.2", features = ["js"] }
 wasm-bindgen = "0.2"
 console_error_panic_hook = { version = "0.1" }
+
+[lib]
+crate-type = ["cdylib"]
+
+[profile.release]
+opt-level = "z"
+codegen-units = 1
+panic = "abort"
