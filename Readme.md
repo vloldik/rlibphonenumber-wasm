@@ -13,7 +13,7 @@ WASM bindings for the [rlibphonenumber](https://github.com/1aim/rust-phonenumber
 
 ## Prerequisites
 
-- [Rust](https://www.rust-lang.org/tools/install) (version 1.70+)
+- [Rust](https://www.rust-lang.org/tools/install) (version 1.89+)
 - `wasm-bindgen-cli` (install via `cargo install wasm-bindgen-cli`)
 - [Node.js](https://nodejs.org/) (version 18+) for running tests and benchmarks
 
