@@ -1,6 +1,6 @@
 # rlibphonenumber-wasm
 
-WASM bindings for the [rlibphonenumber](https://github.com/1aim/rust-phonenumber) library (a Rust port of Google's original `libphonenumber`). 
+WASM bindings for the [rlibphonenumber](https://github.com/vloldik/rlibphonenumber) library (a Rust port of Google's original `libphonenumber`). 
 
 ![Demo Preview](https://img.shields.io/badge/Status-Active-success.svg)
 ![WASM](https://img.shields.io/badge/Target-WebAssembly-blue.svg)
